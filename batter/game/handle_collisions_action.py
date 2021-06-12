@@ -1,3 +1,4 @@
+
 import random
 import sys
 from game import constants
@@ -20,7 +21,8 @@ class HandleCollisionsAction(Action):
         bricks = cast["brick"] # there's only one
         paddle = cast["paddle"][0] # there's only one
         ball = cast["ball"] [0]
-        
+        score = cast["score"] [0]
+        lives = cast["lives"] [0]
         
         ball_v = ball.get_velocity()
         paddle_xy = paddle.get_position()
@@ -32,11 +34,11 @@ class HandleCollisionsAction(Action):
             position = Point(ball_vx, 1)
             ball.set_velocity(position)
         
-        if Point.get_x(ball_xy) == 1:
+        if Point.get_x(ball_xy) <= 2:
             position = Point(1, ball_vy)
             ball.set_velocity(position)
 
-        if Point.get_x(ball_xy) == 79:
+        if Point.get_x(ball_xy) >= 78:
             position = Point(-1, ball_vy)
             ball.set_velocity(position)
 
@@ -45,39 +47,52 @@ class HandleCollisionsAction(Action):
         ball_x = Point.get_x(ball_xy)
         ball_y = Point.get_y(ball_xy)
 
-        if ball_y == 19:
-            print("you suck")
+        if ball_y == 18 and lives._lives == 0:
+            print("""
+                ██╗░░░██╗░█████╗░██╗░░░██╗  ██╗░░░░░░█████╗░░██████╗███████╗  ██╗░░██╗
+                ╚██╗░██╔╝██╔══██╗██║░░░██║  ██║░░░░░██╔══██╗██╔════╝██╔════╝  ╚═╝░██╔╝
+                ░╚████╔╝░██║░░██║██║░░░██║  ██║░░░░░██║░░██║╚█████╗░█████╗░░  ░░░██╔╝░
+                ░░╚██╔╝░░██║░░██║██║░░░██║  ██║░░░░░██║░░██║░╚═══██╗██╔══╝░░  ░░░╚██╗░
+                ░░░██║░░░╚█████╔╝╚██████╔╝  ███████╗╚█████╔╝██████╔╝███████╗  ██╗░╚██╗
+                ░░░╚═╝░░░░╚════╝░░╚═════╝░  ╚══════╝░╚════╝░╚═════╝░╚══════╝  ╚═╝░░╚═╝""")
             sys.exit()
+        elif ball_y == 19 and lives._lives > 0:
+            position = Point(ball_vx, -1)
+            ball.set_velocity(position)
+            lives._lives -= 1
+            lives.set_text(f"Lives: {lives._lives}")
 
         for _ in range(1, 11):
 
-            if paddle_x == ball_x and paddle_y -1 == ball_y:
+            if paddle_x == ball_x and paddle_y -1 == ball_y or ball_vx == 3:
+                if ball_vx == 1 or ball_vx == 2:
+                    ball_vx = random.randint(1,2)
+                elif ball_vx == -1 or ball_vx == -2 or ball_vx == -3:
+                    ball_vx = random.randint(-2,-1)
                 position = Point(ball_vx, -1)
                 ball.set_velocity(position)
             paddle_x += 1
             
-            
-           
+        i = 0
 
-            # ball.get_position()  (ball.get_velocity())
+        for brick in bricks:
+            position = brick.get_position()
+            brick_x = Point.get_x(position)
+            brick_y = Point.get_y(position)
 
-            # Velocity is based off of an x,y endpoint. 0 indicates that it isn't going left, right, up or down
-            # x = -1 is left 1 is right
-            # y = -1 is up 1 is down
-            # (1, 1) = right and down
-            # (1, -1) = right and up
-            # (-1, -1) = left and up
-            # (-1, 1) = left and down
+            if brick_x  == ball_x and brick_y == ball_y:
+                bricks.pop(i)
+                score._points +=1
+                score.set_text(f"Score: {score._points}")
+                if ball_vy == 1:
+                    ball_vy = -1
+                elif ball_vy == -1:
+                    ball_vy = 1
 
-            # 
-            # three types of colisions:
-            #   1. ball with paddel
-            #   2. ball with brick
-            #   3. ball with sides of terminal
-        
-        
-        # for brick in bricks:
-        #     if paddel.get_position().equals(ball.get_position()):
-        #        pass
-                # description = artifact.get_description()
-                # marquee.set_text(description) 
+                if ball_vx == 1:
+                    ball_velocity = Point(-1, ball_vy)
+                else:
+                    ball_velocity = Point(1, ball_vy)
+                ball.set_velocity(ball_velocity)
+
+            i += 1

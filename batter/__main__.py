@@ -47,11 +47,25 @@ def main(screen):
     position = Point(x, y)
     velocity = Point(1, -1)
     ball = Actor()
+    ball._lives = 3
     ball.set_text("@")
     ball.set_position(position)
     ball.set_velocity(velocity)
     cast["ball"] = [ball]
     
+    score = Actor()
+    score._points = 0
+    position = Point(1, 0)
+    score.set_position(position)
+    score.set_text(f"Score: {score._points}")
+    cast["score"] = [score]
+
+    lives = Actor()
+    lives._lives = 3
+    lives.set_text(f"Lives: {lives._lives}")
+    position = Point(73, 0)
+    score.set_position(position)
+    cast["lives"] = [lives]
     # create the script {key: tag, value: list}
     script = {}
 
